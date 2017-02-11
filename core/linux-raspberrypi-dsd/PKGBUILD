@@ -20,6 +20,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
+	"git+https://github.com/spockfish/xmos-native-dsd.git#branch=master"
         "git+https://github.com/sfjro/aufs4-standalone.git#branch=aufs${pkgver%.*}"
         "bfq1.patch::ftp://teambelgium.net/bfq/patches/${pkgver%.*}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver%.*}.0.patch"
         "bfq2.patch::ftp://teambelgium.net/bfq/patches/${pkgver%.*}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver%.*}.0.patch"
@@ -31,6 +32,7 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'config.v7')
 md5sums=('be928afd82896f74501299fca8150ddc'
          'SKIP'
+         'SKIP'
          'c1d7fcfe88edb658375089c0a9cc1811'
          '953133d5e387de2ad79ac0ae5c27cb6b'
          'f0387e673975e9f2a5e05136948edece'
@@ -39,10 +41,17 @@ md5sums=('be928afd82896f74501299fca8150ddc'
          'f95eb9c22c18722e30fc28a5640aeba5'
          '60bc3624123c183305677097bcd56212'
          '301693694819bb8d3b84fb9edaba5620'
-         'da2a7f5b987f2394cdd6d8f80e9d88ae')
+         '5e9bd6de2742a0cdae8244ca527e2080')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
+
+  msg2 "kernel native DSD patches"
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Bryston-BDA3.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-W4S-DAC-2-DSD-fixed.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-Mytek-Brooklyn-DAC.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Singxer-F-1.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Wyred4Sound-DAC2v2.patch
 
   msg2 "AUFS patches"
   cp -ru "${srcdir}/aufs4-standalone/Documentation" .
