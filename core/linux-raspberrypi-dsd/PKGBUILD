@@ -6,11 +6,11 @@
 
 buildarch=20
 
-pkgbase=linux-raspberrypi
+pkgbase=linux-raspberrypi-dsd
 _commit=7ddf96fbb7d637b79b449c7bd1c8d35f00571e4b
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
-_desc="Raspberry Pi"
+_desc="Raspberry Pi with native DSD"
 pkgver=4.4.48
 pkgrel=1
 bfqver=v7r11
