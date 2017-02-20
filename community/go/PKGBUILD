@@ -12,11 +12,12 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - added switches for our architectures
+#  - upstream patch for AArch64
 
 pkgname=('go' 'go-tools')
-pkgver=1.7.5
-pkgrel=1
 epoch=2
+pkgver=1.8
+pkgrel=1.1
 arch=('arm' 'armv6h' 'armv7h' 'aarch64')
 url='http://golang.org/'
 license=('BSD')
@@ -25,6 +26,11 @@ options=('!strip' 'staticlibs')
 source=("$pkgname-$pkgver::git+https://go.googlesource.com/go#tag=$pkgname$pkgver")
 md5sums=('SKIP')
 _gourl=golang.org/x/tools/cmd
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  git cherry-pick -n 3557d546090c7fedd69562c88d20767397de835d
+}
 
 build() {
   cd "$pkgname-$pkgver/src"
@@ -111,7 +117,6 @@ package_go() {
   ln -sf /usr/bin "$pkgdir/usr/lib/go/bin"
 
   install -Dm644 VERSION "$pkgdir/usr/lib/go/VERSION"
-  install="$pkgname.install"
 
   # For godoc command
   install -Dm644 favicon.ico "$pkgdir/usr/lib/go/favicon.ico"

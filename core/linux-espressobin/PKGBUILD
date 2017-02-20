@@ -4,11 +4,11 @@
 buildarch=8
 
 pkgbase=linux-espressobin
-_commit=ba5295137c131109bea12224c5c9e1de60629ce8
+_commit=4c89658d82021f74a30314f1d6d4696fa3d571a6
 _srcname=linux-espressobin-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Globalscale ESPRESSOBin"
-pkgver=4.4.47
+pkgver=4.4.50
 pkgrel=1
 arch=('aarch64')
 url="http://www.kernel.org/"
@@ -18,7 +18,7 @@ options=('!strip')
 source=("https://github.com/kmihelich/linux-espressobin/archive/${_commit}.tar.gz"
         'config'
         'linux.preset')
-md5sums=('ffe32f5d52d782966c1e2e09106ce1a0'
+md5sums=('bd3d6dd38e2226ac24cfed984f193b56'
          'dc812510f305ff6d7416dd1b468d06d1'
          'c275a5855f013054b48083e9006949a4')
 
