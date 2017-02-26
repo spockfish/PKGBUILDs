@@ -51,6 +51,15 @@ prepare() {
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-W4S-DAC-2-DSD-fixed.patch
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-Mytek-Brooklyn-DAC.patch
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Singxer-F-1.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Singxer-F-1.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-ALSA-USB-Add-native-DSD-support-for-MSB-Technology.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-ALSA-USB-Add-native-DSD-support-for-VI-DAC-Inifinity.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-PS-Audio-NuWave-DAC.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-Unison-Research-Unico-CD2.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-W4S-DAC-2-DSD-fixed.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-Mytek-Brooklyn-DAC.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-NuPrime-DAC-10.patch
+  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-USB-Add-native-DSD-support-for-Holo-Springs-Level-3-.patch
 #  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Wyred4Sound-DAC2v2.patch
 
   msg2 "AUFS patches"
