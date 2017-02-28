@@ -18,6 +18,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
 	"git+https://github.com/spockfish/xmos-native-dsd.git#branch=master"
+        "https://github.com/Fourdee/linux/commit/70a8155a64fc3fde57f69f91da3b2835823e0061.patch"
         'https://archlinuxarm.org/builder/src/brcmfmac43430-sdio.bin' 'https://archlinuxarm.org/builder/src/brcmfmac43430-sdio.txt'
         'config.txt'
         'cmdline.txt'
@@ -25,11 +26,13 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'linux.preset'
         '99-linux.hook')
 md5sums=('a062f6bab5ef6f1304db30f617aff460'
+         'SKIP'
+         '009f103b03c31890e12ae449fa053ba2'
          '4a410ab9a1eefe82e158d36df02b3589'
          '8c3cb6d8f0609b43f09d083b4006ec5a'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         'c3dd2d16c5701d454f7be712c6f84392'
+         'e3c54f0105dfc83be6a66e9e181d9ffd'
          '552c43bf6c0225bc213b31ee942b7000'
          '982f9184dfcfbe52110795cf73674334')
 
@@ -38,7 +41,10 @@ prepare() {
 
   cat "${srcdir}/config" > ./.config
 
-  msg2 "kernel native DSD patches"
+  msg2 "patching: eliminate noise at the start of DSD"
+  patch -Np1 -i ../70a8155a64fc3fde57f69f91da3b2835823e0061.patch
+
+  msg2 "patching: kernel native DSD quirks"
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Bryston-BDA3.patch
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-W4S-DAC-2-DSD-fixed.patch
   patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-Mytek-Brooklyn-DAC.patch
