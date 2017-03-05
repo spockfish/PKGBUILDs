@@ -1,55 +1,50 @@
-# ARMv5 multi-platform
+# ChromiumOS kernel for Gru Chromebooks
 # Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
 
-buildarch=2
+buildarch=8
 
-pkgbase=linux-armv5
-_srcname=linux-4.10
+pkgbase=linux-gru
 _kernelname=${pkgbase#linux}
-_desc="ARMv5 multi-platform"
-pkgver=4.10.1
+_desc="Gru Chromebooks"
+pkgver=4.4.44
 pkgrel=1
-arch=('arm')
-url="http://www.kernel.org/"
+_commit=4567e6933e65263ababddf849e7c80f268a16c4f
+arch=('aarch64')
+url="https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-4.4"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'vboot-utils' 'dtc')
 options=('!strip')
-source=("http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
-        '0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
-        '0002-at91-ariag25-updates.patch'
-        '0003-at91-arietta-g25-support.patch'
-        'config')
-md5sums=('b5e7f6b9b2fe1b6cc7bc56a3a0bfc090'
-         'd4ab54e17b686d1dbb1d28238fd0b081'
-         '8effa2a3ad3f2f4383dbc66a19f6f364'
-         'cb5aa24e94ee13ae9ac7d2f05431fae6'
-         'd735d353b37df63ae975bc262ec39ace'
-         'eebbd8a92498d4e0af17a2bb11f5f0ec')
+source=("https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/${_commit}.tar.gz"
+        '0001-Input-atmel_mxt_ts-Use-KERN_DEBUG-loglevel-for-statu.patch'
+        '0002-temporary-hack-to-fix-console-output.patch'
+        'config'
+        'kernel.its'
+        'kernel.keyblock'
+        'kernel_data_key.vbprivk')
+md5sums=('4658400d09f575cd781a29381a7f061a'
+         'a2b9f09a8701abce798f2b4854631e47'
+         '58f5619988f7b4253d618586c24bf085'
+         'cb0ba5ba62ee5a9b9601bd8bcb7063c2'
+         '875d6d9dc7d631a8535ee2f1094999b8'
+         '61c5ff73c136ed07a7aadbf58db3d96a'
+         '584777ae88bce2c5659960151b64c7d8')
 
 prepare() {
-  cd "${srcdir}/${_srcname}"
+  git apply 0001-Input-atmel_mxt_ts-Use-KERN_DEBUG-loglevel-for-statu.patch
+  git apply 0002-temporary-hack-to-fix-console-output.patch
 
-  # add upstream patch
-  git apply --whitespace=nowarn "${srcdir}/patch-${pkgver}"
-
-  # ALARM patches
-  git apply ../0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
-  git apply ../0002-at91-ariag25-updates.patch
-  git apply ../0003-at91-arietta-g25-support.patch
-
-  cat "${srcdir}/config" > ./.config
+  cp config .config
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
+
+  unset LDFLAGS
 }
 
 build() {
-  cd "${srcdir}/${_srcname}"
-
   # get kernel version
   make prepare
 
@@ -74,20 +69,18 @@ build() {
   #yes "" | make config
 
   # build!
-  make ${MAKEFLAGS} zImage modules dtbs
+  make ${MAKEFLAGS} Image modules dtbs
 }
 
 _package() {
   pkgdesc="The Linux Kernel and modules - ${_desc}"
-  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
+  depends=('coreutils' 'linux-firmware' 'kmod')
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=('kernel26' "linux=${pkgver}")
   conflicts=('linux')
   install=${pkgname}.install
 
-  cd "${srcdir}/${_srcname}"
-
-  KARCH=arm
+  KARCH=arm64
 
   # get kernel version
   _kernver="$(make kernelrelease)"
@@ -97,7 +90,21 @@ _package() {
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware}
   make INSTALL_MOD_PATH="${pkgdir}" modules_install
   make INSTALL_DTBS_PATH="${pkgdir}/boot/dtbs" dtbs_install
-  cp arch/$KARCH/boot/zImage "${pkgdir}/boot/zImage"
+  
+  mkimage -D "-I dts -O dtb -p 2048" -f kernel.its vmlinux.uimg
+  dd if=/dev/zero of=bootloader.bin bs=512 count=1
+  echo "console=tty1 console=ttyS2,115200n8 earlyprintk=ttyS2,115200n8 init=/sbin/init root=PARTUUID=%U/PARTNROFF=1 rootwait rw noinitrd" > cmdline
+  vbutil_kernel \
+    --pack vmlinux.kpart \
+    --version 1 \
+    --vmlinuz vmlinux.uimg \
+    --arch aarch64 \
+    --keyblock kernel.keyblock \
+    --signprivate kernel_data_key.vbprivk \
+    --config cmdline \
+    --bootloader bootloader.bin
+
+  cp vmlinux.kpart "${pkgdir}/boot"
 
   # set correct depmod command for install
   sed \
@@ -109,6 +116,8 @@ _package() {
   rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}
   # remove the firmware
   rm -rf "${pkgdir}/lib/firmware"
+  # gzip -9 all modules to save 100MB of space
+  find "${pkgdir}" -name '*.ko' |xargs -P 2 -n 1 gzip -9
   # make room for external modules
   ln -s "../extramodules-${_basekernel}${_kernelname:--ARCH}" "${pkgdir}/lib/modules/${_kernver}/extramodules"
   # add real version for building modules and running depmod from post_install/upgrade
@@ -130,7 +139,6 @@ _package-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/${_srcname}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
@@ -140,16 +148,14 @@ _package-headers() {
 
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include"
 
-  for i in acpi asm-generic config crypto drm generated keys linux math-emu \
-    media net pcmcia scsi soc sound trace uapi video xen; do
+  for i in acpi asm-generic clocksource config crypto drm generated keys linux math-emu \
+    media net pcmcia scsi sound trace uapi video xen; do
     cp -a include/${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/include/"
   done
 
   # copy arch includes for external modules
   mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH
   cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion
-  cp -a arch/$KARCH/plat-orion/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion/
 
   # copy files necessary for later builds, like nvidia and vmware
   cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
@@ -235,7 +241,7 @@ _package-headers() {
   done
 
   # remove unneeded architectures
-  rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm26,arm64,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,x86,xtensa}
+  rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm,arm26,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,x86,xtensa}
 }
 
 pkgname=("${pkgbase}" "${pkgbase}-headers")
