@@ -5,12 +5,12 @@
 buildarch=20
 
 pkgbase=linux-raspberrypi
-_commit=935c7ce84c982a26f567a03a58a1537424569938
+_commit=a196d989ba49520382594a6384206f71cc8c008b
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Raspberry Pi"
-pkgver=4.9.13
-pkgrel=3
+pkgver=4.9.20
+pkgrel=1
 arch=('armv6h' 'armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -23,12 +23,12 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
         '99-linux.hook')
-md5sums=('c2ccac489528a9562c89ac058d31296c'
+md5sums=('cb17b7f44de29c667e47f37612ffa963'
          '4a410ab9a1eefe82e158d36df02b3589'
          '8c3cb6d8f0609b43f09d083b4006ec5a'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         '05d269ce648e277a68e3fa32daffa493'
+         '81e14dd0f27ece034fd918c91c9a0533'
          '552c43bf6c0225bc213b31ee942b7000'
          '982f9184dfcfbe52110795cf73674334')
 
