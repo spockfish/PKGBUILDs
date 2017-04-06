@@ -25,7 +25,8 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'cmdline.txt'
         'config'
         'linux.preset'
-        '99-linux.hook')
+        '99-linux.hook'
+        'usb-dsd-quirks.patch')
 md5sums=('cb17b7f44de29c667e47f37612ffa963'
          'SKIP'
          '009f103b03c31890e12ae449fa053ba2'
@@ -36,7 +37,8 @@ md5sums=('cb17b7f44de29c667e47f37612ffa963'
          '60bc3624123c183305677097bcd56212'
          'e12e1de1cfb2ae13e5ff16c456bc4d0a'
          '552c43bf6c0225bc213b31ee942b7000'
-         '982f9184dfcfbe52110795cf73674334')
+         '982f9184dfcfbe52110795cf73674334'
+         'd8d366547b591f00ad509371eb87a7f4')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -47,44 +49,7 @@ prepare() {
   patch -Np1 -i ../70a8155a64fc3fde57f69f91da3b2835823e0061.patch
 
   msg2 "patching: kernel native DSD quirks"
-  # done already
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-audio-add-native-DSD-support-for-JLsounds-I2Sove.patch
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-Add-native-DSD-support-for-Gustard-DAC-X20U.patch
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-Add-native-DSD-support-for-Aune-X1S.patch
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-Add-native-DSD-support-for-OPPO-HA-1.patch
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-PS-Audio-NuWave-DAC.patch
-
-
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-W4S-DAC-2-DSD-fixed.patch
-  patch -Np0 -i ${srcdir}/0001-usb-add-native-dsd-auralic-vega.patch
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-NuPrime-DAC-10.patch
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-the-Mytek-Brooklyn-DAC.patch
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-Add-native-DSD-support-for-Amanero-Combo384-BE.patch
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-Unison-Research-Unico-CD2.patch
-  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-ALSA-USB-Add-native-DSD-support-for-MSB-Technology.patch
-
-  msg2 "8"
-# werkt niet, moet nog gefixed worden
-#  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Bryston-BDA3.patch
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Audiolab-M-DAC-plus.patch
-
-  #msg2 "a"
-
-  # done
-
-  msg2 "c"
-  # werkt niet, moet nog gefixed worden
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-ALSA-USB-Add-native-DSD-support-for-VI-DAC-Inifinity.patch
-
-  msg2 "d"
- # patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-USB-Add-native-DSD-support-for-Holo-Springs-Level-3-.patch
-
-##  patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Wyred4Sound-DAC2v2.patch
-
-  #msg2 "e"
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-usb-native-DSD-support-for-Singxer-F-1.patch
-  #msg2 "f"
-  #patch -Np1 -i ../xmos-native-dsd/SRPMS/patches/kernel/0001-Add-native-DSD-support-for-Mutec-MC3plus-USB.patch
+  patch -Np1 -i ../usb-dsd-quirks.patch
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
