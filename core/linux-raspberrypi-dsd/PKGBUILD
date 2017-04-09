@@ -20,7 +20,6 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
 	"git+https://github.com/spockfish/xmos-native-dsd.git#branch=master"
         "https://github.com/Fourdee/linux/commit/70a8155a64fc3fde57f69f91da3b2835823e0061.patch"
         'https://archlinuxarm.org/builder/src/brcmfmac43430-sdio.bin' 'https://archlinuxarm.org/builder/src/brcmfmac43430-sdio.txt'
-	'0001-usb-add-native-dsd-auralic-vega.patch'
         'config.txt'
         'cmdline.txt'
         'config'
