@@ -10,7 +10,7 @@ _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Raspberry Pi with native DSD support"
 pkgver=4.9.20
-pkgrel=53
+pkgrel=56
 arch=('armv6h' 'armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -31,10 +31,9 @@ md5sums=('cb17b7f44de29c667e47f37612ffa963'
          '009f103b03c31890e12ae449fa053ba2'
          '4a410ab9a1eefe82e158d36df02b3589'
          '8c3cb6d8f0609b43f09d083b4006ec5a'
-         '3ee982bd9cde4f591ffdadd5c0a8739b'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         'e12e1de1cfb2ae13e5ff16c456bc4d0a'
+         '14a15904e80b874430f3ed946a93c884'
          '552c43bf6c0225bc213b31ee942b7000'
          '982f9184dfcfbe52110795cf73674334'
          'd8d366547b591f00ad509371eb87a7f4')
