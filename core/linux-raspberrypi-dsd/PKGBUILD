@@ -26,14 +26,14 @@ source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'linux.preset'
         '99-linux.hook'
         'usb-dsd-quirks.patch')
-md5sums=('cb17b7f44de29c667e47f37612ffa963'
+md5sums=('e8f2b690fbc8a9f63e15232d39d85b34'
          'SKIP'
          '009f103b03c31890e12ae449fa053ba2'
          '4a410ab9a1eefe82e158d36df02b3589'
          '8c3cb6d8f0609b43f09d083b4006ec5a'
          '7c6b37a1353caccf6d3786bb4161c218'
          '60bc3624123c183305677097bcd56212'
-         '14a15904e80b874430f3ed946a93c884'
+         '3d187998805ab0b4c96ca6416749633e'
          '552c43bf6c0225bc213b31ee942b7000'
          '982f9184dfcfbe52110795cf73674334'
          'd8d366547b591f00ad509371eb87a7f4')
