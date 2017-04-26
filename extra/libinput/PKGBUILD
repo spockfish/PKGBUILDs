@@ -1,0 +1,62 @@
+# $Id$
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+# Maintainer: Jan de Groot
+
+# ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
+#  - add proposed upstream patches to fix Elan I2C touchpads
+#  - patch to not crash Xorg on the Chromebook Plus
+
+pkgname=libinput
+pkgver=1.7.1
+pkgrel=1
+pkgdesc="Input device management and event handling library"
+arch=(i686 x86_64)
+url="https://www.freedesktop.org/wiki/Software/libinput/"
+license=(custom:X11)
+depends=('mtdev' 'systemd' 'libevdev' 'libwacom')
+# currently no doc files to install
+makedepends=('doxygen' 'graphviz' 'gtk3')
+#checkdepends=('check' 'libunwind')
+source=(https://freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz{,.sig}
+        0001-touchpad-move-the-pressure-range-to-a-hwdb-entry.patch
+        0002-udev-Add-name-based-input-device-detection-without-d.patch
+        0003-udev-Add-support-for-I2C-Elan-touchpads-without-dmi.patch
+        0004-udev-Decrease-high-pressure-value-for-Elantech-touch.patch
+        0005-Don-t-pair-touchpad-and-lid-switch.patch)
+sha512sums=('ee477fbbe2042ffeff70a960caf97e914d28c916af495765071a0184f442fa503d461bc34b87dc3dd62ef1bfd3e921ddc6fc065f8089d16d81c037d53d677352'
+            'SKIP'
+            '12649bc2b1103bed2c2050bea43661fd4363745d997a2e07ef44c096279532aa95fbf8108ac4330e481c16d6732cbc26b00333d0e62d5e93cf6be4d8d0ac04d6'
+            'f6bd66dbb7421c09ef0f58d911d6432693db901715c8e24f4faddffd03a3b3d0929c9f88e5413821da2e7efe73e8b9f391b39472fbedeb09aec416ea466a25c5'
+            'dd96f2699948b055ad4491d24e98c7f62ada678a5cebc360e0242cf20383528c33d3879d0b34c20c446ccac2c3cb7daab9355aff2d12cdc674623736aa8f710c'
+            'c7dcdae77e195409dae4a3a01bec4e5b6cc997fa80644d09538cfa3700977f4c2562338b45725a7ac0ef115b0b04a184de16c9105a2e11b10033d0ea86c59533'
+            '29b20078c1b8b4f8f33de3c39529351d2e37d37f3f7cb10f4aef6f05e120285c2b987d2ec94ea5875bc0cc101c6d9b02353b09b8e4927c396584fc8f5fe1846f')
+validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../0001-touchpad-move-the-pressure-range-to-a-hwdb-entry.patch
+  patch -p1 -i ../0002-udev-Add-name-based-input-device-detection-without-d.patch
+  patch -p1 -i ../0003-udev-Add-support-for-I2C-Elan-touchpads-without-dmi.patch
+  patch -p1 -i ../0004-udev-Decrease-high-pressure-value-for-Elantech-touch.patch
+  patch -p1 -i ../0005-Don-t-pair-touchpad-and-lid-switch.patch
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+  # install doc - no Makefile target
+  install -v -dm755 ${pkgdir}/usr/share/doc/libinput
+  cp -rv doc/html/* ${pkgdir}/usr/share/doc/libinput
+}
