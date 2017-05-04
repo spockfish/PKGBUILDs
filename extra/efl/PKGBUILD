@@ -4,12 +4,11 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - configure with --disable-neon for !aarch64
-#  - configure with --enable-lua-old for aarch64
 
 pkgbase=efl
 pkgname=('efl' 'efl-docs')
 pkgver=1.18.4
-pkgrel=2
+pkgrel=3
 pkgdesc="Enlightenment Foundation Libraries"
 arch=('i686' 'x86_64')
 url="https://www.enlightenment.org"
@@ -45,7 +44,6 @@ build() {
 
   export CFLAGS="$CFLAGS -fvisibility=hidden"
 
-  [[ $CARCH == "aarch64" ]] && CONFIG="--enable-lua-old"
   [[ $CARCH != "aarch64" ]] && CONFIG="--disable-neon"
 
   ./configure --prefix=/usr \
