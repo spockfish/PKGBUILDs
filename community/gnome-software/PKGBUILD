@@ -3,10 +3,14 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 # Contributor: Yosef Or Boczko <yoseforb@gnome.org>
 
-# remove when bumped upstream
+# ALARM: Kevin Mihelich <kevin@archlinuxarm.og>
+#  - remove dependency on fwupd, --enable-firmware from configure
+#  - restrict to v7/v8 due to valgrind requirement
+
+buildarch=12
 
 pkgname=gnome-software
-pkgver=3.24.2
+pkgver=3.24.3+13+g836d2ee8
 pkgrel=1
 pkgdesc="GNOME Software Tools"
 arch=(i686 x86_64)
@@ -14,8 +18,8 @@ license=(GPL2)
 url="https://wiki.gnome.org/Apps/Software/"
 depends=(gtk3 appstream-glib libsoup gsettings-desktop-schemas gnome-desktop flatpak
          packagekit archlinux-appstream-data gtkspell3 libgudev)
-makedepends=(intltool python docbook-xsl gnome-common git)
-_commit=783e66b61379eebd598f8b0b167c0f7d3f537c0d  # tags/GNOME_SOFTWARE_3_24_2^0
+makedepends=(intltool python docbook-xsl gnome-common git valgrind)
+_commit=836d2ee85991e968c3cb38a006df344aa5493c2c  # gnome-3-24
 source=("git+https://git.gnome.org/browse/gnome-software#commit=$_commit")
 sha256sums=('SKIP')
 
