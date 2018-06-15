@@ -1,0 +1,32 @@
+From b246aca0be1fb73be526b50c1e38743762138721 Mon Sep 17 00:00:00 2001
+From: Kevin Mihelich <kevin@archlinuxarm.org>
+Date: Sun, 25 Feb 2018 16:45:51 -0700
+Subject: [PATCH 9/9] Revert "vfs,mm: fix a dead loop in
+ truncate_inode_pages_range()"
+
+This reverts commit c2a9737f45e27d8263ff9643f994bda9bac0b944.
+
+This causes the kernel to not be able to read beyond 8TB on a single
+device.
+---
+ mm/filemap.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 0604cb02e6f3..0659f3b9f04f 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2062,10 +2062,6 @@ static ssize_t generic_file_buffered_read(struct kiocb *iocb,
+ 	unsigned int prev_offset;
+ 	int error = 0;
+ 
+-	if (unlikely(*ppos >= inode->i_sb->s_maxbytes))
+-		return 0;
+-	iov_iter_truncate(iter, inode->i_sb->s_maxbytes);
+-
+ 	index = *ppos >> PAGE_SHIFT;
+ 	prev_index = ra->prev_pos >> PAGE_SHIFT;
+ 	prev_offset = ra->prev_pos & (PAGE_SIZE-1);
+-- 
+2.17.0
+

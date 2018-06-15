@@ -4,34 +4,34 @@
 buildarch=8
 
 pkgbase=linux-aarch64
-_srcname=linux-4.13
+_srcname=linux-4.17
 _kernelname=${pkgbase#linux}
 _desc="AArch64 multi-platform"
-pkgver=4.13.2
+pkgver=4.17.1
 pkgrel=1
 arch=('aarch64')
 url="http://www.kernel.org/"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'vboot-utils' 'dtc')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
         "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         '0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
-        '0002-arm64-dts-rockchip-enable-sdmmc-controller-on-rk3399.patch'
-        '0003-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
-        '0004-arm64-dts-qcom-Force-host-mode-for-USB-on-apq8016-sb.patch'
-        '0005-usb-chipidea-msm-ci_hdrc_msm_probe-missing-of_node_g.patch'
+        '0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch'
         'config'
+        'kernel.its'
+        'kernel.keyblock'
+        'kernel_data_key.vbprivk'
         'linux.preset'
         '99-linux.hook')
-md5sums=('ab1a2abc6f37b752dd2595338bec4e78'
-         '0aed60167525cb5cecdd29e78fc5f58e'
-         '8db7297a3275eefc48b4e8c66cd16d3b'
-         '1e677ec7390244e3082ae39d6c370e7d'
-         '69fa0e6241343ea0993ae179c9c13bb6'
-         'bba80391517bacdeb4d7ccfec2c86e34'
-         '3142ca3948f4f3b0ab74f267e1be09f4'
-         '1e260c74fa12632a6c0def911f50d1bd'
+md5sums=('5bb13a03274b66b56c85b26682e407d7'
+         '8f430fc5bf2fd5a6ec5da8b4a08473d8'
+         'c656b4169dd6c87f93dfb49edea3ddbf'
+         '79459eaa00aa5de588c73f3076f0907b'
+         '02251a347bc3f8daa61cd8bbb8883584'
+         '11a4f35c50f0bde59c30182aa7b797b7'
+         '61c5ff73c136ed07a7aadbf58db3d96a'
+         '584777ae88bce2c5659960151b64c7d8'
          'b5ef67d6086e20de7b82265f562f88b1'
          '1d4477026533efaa0358a40855d50a83')
 
@@ -43,10 +43,7 @@ prepare() {
 
   # ALARM patches
   git apply ../0001-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
-  git apply ../0002-arm64-dts-rockchip-enable-sdmmc-controller-on-rk3399.patch
-  git apply ../0003-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch
-  git apply ../0004-arm64-dts-qcom-Force-host-mode-for-USB-on-apq8016-sb.patch
-  git apply ../0005-usb-chipidea-msm-ci_hdrc_msm_probe-missing-of_node_g.patch
+  git apply ../0002-arm64-dts-rockchip-disable-pwm0-on-rk3399-firefly.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -191,6 +188,9 @@ _package-headers() {
 
   cp arch/${KARCH}/kernel/asm-offsets.s "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/kernel/"
 
+  # copy module linker script
+  cp arch/$KARCH/kernel/module.lds "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/kernel/"
+
   # add dm headers
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/md"
   cp drivers/md/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/md"
@@ -205,10 +205,6 @@ _package-headers() {
 
   # add dvb headers for external modules
   # in reference to:
-  # http://bugs.archlinux.org/task/9912
-  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-core"
-  cp drivers/media/dvb-core/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-core/"
-  # and...
   # http://bugs.archlinux.org/task/11194
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include/config/dvb/"
   cp include/config/dvb/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/include/config/dvb/"
@@ -260,7 +256,34 @@ _package-headers() {
   rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm,arm26,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,x86,xtensa}
 }
 
-pkgname=("${pkgbase}" "${pkgbase}-headers")
+_package-chromebook() {
+  pkgdesc="The Linux Kernel - ${_desc} - Chromebooks"
+  depends=('linux-aarch64')
+  conflicts=('linux-aarch64-rc-chromebook')
+  install=${pkgname}.install
+
+  cd "${srcdir}/${_srcname}"
+
+  mkdir -p "${pkgdir}/boot"
+  cp ../kernel.its .
+
+  mkimage -D "-I dts -O dtb -p 2048" -f kernel.its vmlinux.uimg
+  dd if=/dev/zero of=bootloader.bin bs=512 count=1
+  echo "console=tty0 console=ttyS2,115200n8 earlyprintk=ttyS2,115200n8 init=/sbin/init root=PARTUUID=%U/PARTNROFF=1 rootwait rw noinitrd" > cmdline
+  vbutil_kernel \
+    --pack vmlinux.kpart \
+    --version 1 \
+    --vmlinuz vmlinux.uimg \
+    --arch aarch64 \
+    --keyblock ../kernel.keyblock \
+    --signprivate ../kernel_data_key.vbprivk \
+    --config cmdline \
+    --bootloader bootloader.bin
+
+  cp vmlinux.kpart "${pkgdir}/boot"
+}
+
+pkgname=("${pkgbase}" "${pkgbase}-headers" "${pkgbase}-chromebook")
 for _p in ${pkgname[@]}; do
   eval "package_${_p}() {
     _package${_p#${pkgbase}}

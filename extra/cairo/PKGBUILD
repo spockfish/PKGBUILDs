@@ -6,33 +6,47 @@
 #  - drop valgrind makedepend
 
 pkgname=cairo
-pkgver=1.15.8
-pkgrel=2
+pkgver=1.15.12
+pkgrel=1
 pkgdesc="2D graphics library with support for multiple output devices"
 url="https://cairographics.org/"
-arch=(i686 x86_64)
-license=('LGPL' 'MPL')
-depends=('libpng' 'libxrender' 'libxext' 'fontconfig' 'pixman' 'glib2' 'lzo')
-makedepends=('librsvg' 'gtk2' 'poppler-glib' 'libspectre' 'gtk-doc' 'git')
-source=(https://cairographics.org/snapshots/cairo-$pkgver.tar.xz
-        color-glyph-source-op.patch)
-sha1sums=('07cc2031b74d758299eeee3ec49ecbfbfb85f1c6'
-          '5d8efd47038edcf0debf0a43713bba3025f3cffd')
+arch=(x86_64)
+license=(LGPL MPL)
+depends=(libpng libxrender libxext fontconfig pixman glib2 lzo)
+makedepends=(librsvg gtk2 poppler-glib libspectre gtk-doc git)
+_commit=7149686456ec3c481fa1d3dbe76a0dab1e42b519  # tags/1.15.12^0
+source=("git+https://anongit.freedesktop.org/git/cairo#commit=$_commit"
+        utf-8.diff)
+sha1sums=('SKIP'
+          '3f680dea8533bcce4ca2af5d25c546235ef7b339')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
 
 prepare() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
-  # https://bugs.freedesktop.org/show_bug.cgi?id=102661
-  patch -Np1 -i ../color-glyph-source-op.patch
+  # Fixup tag for pkgver()
+  git tag -f 1.15.10 5e6b9aeb5e3402ff17ae8ee8548ae2341c2f7d59
+
+  # Fix non-UTF-8 sources giving gtk-doc trouble
+  patch -Np1 -i ../utf-8.diff
+
+  # Update gtk-doc
+  cp /usr/share/aclocal/gtk-doc.m4 build/aclocal.gtk-doc.m4
+  cp /usr/share/gtk-doc/data/gtk-doc.make build/Makefile.am.gtk-doc
+
+  NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   ./configure --prefix=/usr \
         --sysconfdir=/etc \
         --localstatedir=/var \
         --disable-static \
-        --disable-lto \
         --disable-gl \
         --enable-tee \
         --enable-svg \
@@ -44,7 +58,13 @@ build() {
   make
 }
 
+check() {
+  cd $pkgname
+  # https://people.gnome.org/~federico/blog/helping-cairo.html
+  #make check
+}
+
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 }

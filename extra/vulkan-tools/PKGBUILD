@@ -3,23 +3,31 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - use suffix=32 in packaging for 32-bit ARM architectures
+#  - strip -m32 from CMakeLists
 
 pkgbase=vulkan-tools
 pkgname=(vulkan-trace vulkan-extra-layers)
-pkgver=1.0.57.0
+pkgver=1.1.73.0
 pkgrel=1
-arch=(i686 x86_64)
+arch=(x86_64)
 url="http://lunarg.com/"
 license=('custom')
 depends=()
 makedepends=(git cmake wget python-lxml libxcb libxrandr imagemagick qt5-svg)
-source=("vulkanTools-sdk-${pkgver}::https://github.com/LunarG/VulkanTools/archive/sdk-${pkgver}.tar.gz")
-sha256sums=('b169d6f36676d3f8c7ce74a4f1a844e94c6429b2663f0953b69153a474f19c57')
+source=("git+https://github.com/LunarG/VulkanTools#tag=sdk-${pkgver}")
+sha256sums=('SKIP')
+
+prepare() {
+  cd ${srcdir}
+  ln -s VulkanTools "VulkanTools-sdk-${pkgver}"
+  cd "${srcdir}/VulkanTools-sdk-${pkgver}"
+  sed -i 's/-m32//g' vktrace/CMakeLists.txt
+}
 
 build() {
   cd "${srcdir}/VulkanTools-sdk-${pkgver}"
 
-  ./update_external_sources.sh --glslang --spirv-tools --jsoncpp
+  ./update_external_sources.sh
 
   rm -rf build ; mkdir build ; cd build
   cmake \

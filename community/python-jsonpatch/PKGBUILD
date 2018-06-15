@@ -8,7 +8,7 @@
 
 pkgbase=python-jsonpatch
 pkgname=(python-jsonpatch python2-jsonpatch)
-pkgver=1.16
+pkgver=1.23
 pkgrel=1
 pkgdesc="An implementation of the JSON Patch format"
 arch=("any")
@@ -17,7 +17,7 @@ license=("BSD")
 makedepends=("python-setuptools" "python2-setuptools" "python-jsonpointer" "python2-jsonpointer")
 checkdepends=('python-coverage' 'python2-coverage')
 source=("$pkgbase-$pkgver.tar.gz::https://github.com/stefankoegl/python-json-patch/archive/v$pkgver.tar.gz")
-sha512sums=('a1a4e7792790bd08ba9649066a455e244135ea8548eb81f24c5df76a9ae7dd3b360f43b16c08e1ef9376189940a74699a7a108ed5cc35283da82e83e9d1e2b79')
+sha512sums=('87b12037174af6ebff81b2e544985460bd33d417845c146436bc49bd7b964b2f4cc5f9f810d817e048e69846c8f97a38fce7512168902602c94469b0bcd4fa3c')
 
 prepare(){
   cp -a python-json-patch-$pkgver{,-py2}

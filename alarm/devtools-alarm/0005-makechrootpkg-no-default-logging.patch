@@ -1,4 +1,4 @@
-From 32f7c91339f5bb396c10604a3487ca88da406b22 Mon Sep 17 00:00:00 2001
+From 44a2b161185fc8ea89bde621badfcc3c2fc82c64 Mon Sep 17 00:00:00 2001
 From: Kevin Mihelich <kevin@archlinuxarm.org>
 Date: Sun, 28 Dec 2014 22:33:41 -0700
 Subject: [PATCH 5/7] makechrootpkg: no default logging
@@ -8,18 +8,18 @@ Subject: [PATCH 5/7] makechrootpkg: no default logging
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/makechrootpkg.in b/makechrootpkg.in
-index 39dc498..9a69dda 100644
+index bb561ea..3ff3673 100644
 --- a/makechrootpkg.in
 +++ b/makechrootpkg.in
-@@ -12,7 +12,7 @@ m4_include(lib/common.sh)
+@@ -307,7 +307,7 @@ move_products() {
+ # }}}
  
- shopt -s nullglob
- 
--makepkg_args=(-s --noconfirm -L --holdver)
-+makepkg_args=(-s --noconfirm --holdver)
- repack=false
- update_first=false
- clean_first=false
+ main() {
+-	default_makepkg_args=(--syncdeps --noconfirm --log --holdver --skipinteg)
++	default_makepkg_args=(--syncdeps --noconfirm --holdver --skipinteg)
+ 	makepkg_args=("${default_makepkg_args[@]}")
+ 	keepbuilddir=false
+ 	update_first=false
 -- 
-2.9.0
+2.16.2
 

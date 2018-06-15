@@ -7,18 +7,18 @@
 #  - removed -mtune, changed -march to v8/v7/v6/v5 compat
 
 pkgname=mkinitcpio-busybox
-pkgver=1.26.1
+pkgver=1.28.4
 pkgrel=1
 pkgdesc='Base initramfs tools'
-arch=(i686 x86_64)
+arch=(x86_64)
 url="http://www.busybox.net/"
 license=(GPL)
-depends_x86_64=(glibc)
+depends=(glibc)
 options=(!buildflags)
 source=(https://busybox.net/downloads/busybox-$pkgver.tar.bz2
         config)
-sha256sums=('0fbbe487fa35cc3258749cf79c259578c1a221013cc4fb60d6a3542590f781f2'
-            '4cf727c87f97b2c72e6a76fa710eaa84104fdc51d0ec232eba120c9fa17e1ab3')
+sha256sums=('e3c14a3699dc7e82fed397392957afc78e37bdf25398ac38ead6e84621b2ae6a'
+            'cb97bf879450457c97cb2a2b6c0e4821ce6fc8962cca36e4039b3d7e8498bf38')
 
 prepare() {
   cd "busybox-$pkgver"
@@ -35,12 +35,7 @@ prepare() {
 
   local safeflags="-march=${ARMCARCH} -Os -pipe -fno-strict-aliasing"
 
-  sed 's|^\(CONFIG_EXTRA_CFLAGS\)=.*|\1="'"$safeflags"'"|' "$srcdir/config" >.config
-
-  # workaround for FS#54240
-  if [[ $CARCH == 'i686' ]]; then
-    echo 'CONFIG_STATIC=y' >> .config
-  fi
+  sed 's|^\(CONFIG_EXTRA_CFLAGS\)=.*|\1="'"$safeflags"'"|' "$srcdir/config" > .config
 }
 
 build() {

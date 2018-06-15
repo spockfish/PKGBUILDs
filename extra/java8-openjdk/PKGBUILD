@@ -12,20 +12,21 @@
 #  - configure with --with-jvm-variants=zero
 #  - adjust doc package to use linux-${_DOC_ARCH}-normal-zero-release instead of normal-server-release
 #  - prevent downgrading hotspot optimization with CFLAGS
+#  - drop building docs and its package; takes forever to build
 
 buildarch=22
 
 # Package 'openjfx' must be updated when this one is
-pkgname=('jre8-openjdk-headless' 'jre8-openjdk' 'jdk8-openjdk' 'openjdk8-src' 'openjdk8-doc')
+pkgname=('jre8-openjdk-headless' 'jre8-openjdk' 'jdk8-openjdk' 'openjdk8-src')
 pkgbase=java8-openjdk
 _java_ver=8
 # Found @ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
-_jdk_update=144
-_jdk_build=01
+_jdk_update=172
+_jdk_build=11
 pkgver=${_java_ver}.u${_jdk_update}
 _repo_ver=jdk${_java_ver}u${_jdk_update}-b${_jdk_build}
-pkgrel=1
-arch=('i686' 'x86_64')
+pkgrel=2
+arch=('x86_64')
 url='http://openjdk.java.net/'
 license=('custom')
 options=('!distcc')
@@ -39,18 +40,16 @@ source=(jdk8u-${_repo_ver}.tar.gz::${_url_src}/archive/${_repo_ver}.tar.gz
         jaxws-${_repo_ver}.tar.gz::${_url_src}/jaxws/archive/${_repo_ver}.tar.gz
         jaxp-${_repo_ver}.tar.gz::${_url_src}/jaxp/archive/${_repo_ver}.tar.gz
         langtools-${_repo_ver}.tar.gz::${_url_src}/langtools/archive/${_repo_ver}.tar.gz
-        nashorn-${_repo_ver}.tar.gz::${_url_src}/nashorn/archive/${_repo_ver}.tar.gz
-        build_with_gcc6.patch)
+        nashorn-${_repo_ver}.tar.gz::${_url_src}/nashorn/archive/${_repo_ver}.tar.gz)
 
-sha256sums=('85a8a8c55cda2d3bae833578d6ad6c8bf531550ac051776d47946d17858a6721'
-            'f0a153807e08c79c5ce229be6eafe7951854a7d7eb496cea7b24a0a5f305ccfe'
-            '18d9fc6b9a6830cb8083e366b9ef31f8c8ebb80c816d7f516de8285181fb6bc1'
-            'e8442fd2fcce332abdb1e34bb33655e43e6d88bb551fc67883b8cab043aba53f'
-            '5146841822b49e1300c6c78a88be617fd72a80b76e8e2bb8d6ed526edfe1a929'
-            'd5479dde109483c81f94abb91d93d11b1a899bb5d5685e7dfdd96ba8e35adf93'
-            '7a3a7d2f2f6f47de876532d9ad9e3d04f0235a8d848ea958d6371dbb2535f83c'
-            '5d14d0e910fec1cc34e02bf25173b25619083f2afda8e73d0bb5ba456c12b89c'
-            'dcf5f495620231068b0c925a33ba7246bbeb85e9ae822b30ab77a66839c2d3b6')
+sha256sums=('f1ca31605360594cb57b21aa5888f253e9775125957f96afb1a9dbb71676af22'
+            'a89b558a4bb1d0368486a58d248a16b1760f8536fdc94ff70bf09e5c1bfcea24'
+            'f7a2652021b50d43c076df8f94cec13b82e2704c0d1535289074cb5e0eec31a0'
+            '756b6855c9bdb7ae1ac4b7a4d2bafcbdad4ab6dd33ccc64efb94f9d4f21273d3'
+            '8ad3b70c468cce6104f023ca5f4354462a47a38d9dc25994a6d04b2c18598432'
+            '0193ff13167f6ff7d667cd32dd2d05e4591975a4404b433c9ff59d2d4ce54603'
+            'ef0f2042143cf6ddc508d81978fdb7cd900d38e5b166f40112d1967ceb09f036'
+            '2a3bff4dfca022cb603cd46a6766fd1b7212adb473af5809b48504576bce6029')
 
 case "${CARCH}" in
   'x86_64') _JARCH=amd64 ; _DOC_ARCH=x86_64 ;;
@@ -74,8 +73,6 @@ prepare() {
   do
     ln -s ../${subrepo}-${_repo_ver} ${subrepo}
   done
-
-  patch -p1 < ../build_with_gcc6.patch
 }
 
 build() {
@@ -85,7 +82,7 @@ build() {
   # http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=1346
   export MAKEFLAGS=${MAKEFLAGS/-j*}
   # https://hydra.nixos.org/build/41230444/log
-  export CFLAGS="-Wno-error=deprecated-declarations"
+  export CFLAGS+=" -Wno-error=deprecated-declarations -fno-lifetime-dse -fno-delete-null-pointer-checks"
 
   # prevent downgrading hotspot optimization
   CFLAGS=`echo $CFLAGS | sed -e 's/-O2//'` && CXXFLAGS="$CFLAGS"
@@ -110,7 +107,7 @@ build() {
   # These help to debug builds:
   #LOG=trace HOTSPOT_BUILD_JOBS=1
 
-  make docs
+  #make docs
 
   # FIXME sadly 'DESTDIR' is not used here!
   make install
@@ -293,12 +290,4 @@ package_openjdk8-src() {
   pkgdesc='OpenJDK Java 8 sources'
 
   install -D "${srcdir}/${_imgdir}/src.zip" "${pkgdir}${_jvmdir}/src.zip"
-}
-
-package_openjdk8-doc() {
-  pkgdesc='OpenJDK Java 8 documentation'
-
-  install -d -m 755 "${pkgdir}/usr/share/doc/${pkgbase}/"
-  cp -r "${srcdir}"/jdk8u-${_repo_ver}/build/linux-${_DOC_ARCH}-normal-zero-release/docs/* \
-    "${pkgdir}/usr/share/doc/${pkgbase}/"
 }
