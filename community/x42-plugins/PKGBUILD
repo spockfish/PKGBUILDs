@@ -6,22 +6,28 @@
 #  - export OPTIMIZATIONS to override Makefiles without x86isms
 
 pkgname=x42-plugins
-pkgver=20180320
-pkgrel=2
+pkgver=20180803
+pkgrel=1
 pkgdesc="Collection of LV2 plugins"
 arch=('x86_64')
 url="https://github.com/x42/x42-plugins"
 license=('GPL')
-depends=('jack' 'libglvnd' 'liblo' 'libltc' 'pango' 'zita-convolver')
-makedepends=('gtk2' 'ftgl' 'ttf-freefont' 'lv2')
+depends=('ftgl' 'jack' 'liblo' 'libltc' 'pango' 'zita-convolver')
+makedepends=('gtk2' 'ttf-dejavu' 'lv2')
 groups=('lv2-plugins' 'pro-audio')
 source=("http://gareus.org/misc/${pkgname}/${pkgname}-${pkgver}.tar.xz")
-sha512sums=('3e2f13179073b38e846e0855031e7f842b535ad13f64b309ca4da8c0738a77ab8b70e117edfa1a97263ff37d279a4d9a26950c1883507d8e710b8cd54061bb32')
+sha512sums=('a88e72d858c5d820971e8741bdd75d75827cd64d7cde4f02113092d3050d39b0fec99f9fa79d83db537e9260d37a93f098205563e3c1606de6075b8671cc759d')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # replace ttf-freefont with ttf-liberation
+  export FONTFILE=/usr/share/fonts/TTF/DejaVuSans-Bold.ttf
+}
 
 build() {
   cd "${pkgname}-${pkgver}"
   export OPTIMIZATIONS="-ffast-math -fomit-frame-pointer -O3 -fno-finite-math-only"
-  FONTFILE=/usr/share/fonts/TTF/FreeSansBold.ttf make
+  make
 }
 
 package() {
@@ -30,4 +36,3 @@ package() {
 }
 
 # vim:set ts=2 sw=2 et:
-

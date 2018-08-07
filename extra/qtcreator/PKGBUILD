@@ -1,4 +1,4 @@
-# $Id: PKGBUILD 86795 2013-03-22 10:46:14Z svenstaro $
+# $Id$
 # Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
 # Maintainer: Antonio Rojas <arojas@archlinux.org>
 # Contributor: Imanol Celaya <ornitorrincos@archlinux-es.org>
@@ -14,8 +14,8 @@
 buildarch=12
 
 pkgname=qtcreator
-pkgver=4.6.2
-_clangver=6.0.0
+pkgver=4.7.0
+_clangver=6.0.1
 pkgrel=1
 pkgdesc='Lightweight, cross-platform integrated development environment'
 arch=(x86_64)
@@ -35,18 +35,18 @@ optdepends=('qt5-doc: integrated Qt documentation'
             'bzr: bazaar support')
 source=("http://download.qt.io/official_releases/qtcreator/${pkgver%.*}/$pkgver/qt-creator-opensource-src-$pkgver.tar.xz"
         '0001-Fix-Allow-qt-creator-to-build-on-arm-aarch32-and-aar.patch')
-sha256sums=('bbaf667f51051c602df02e04c1d7369bef9553326d8377bc36a019ae718843cc'
+sha256sums=('4b19870bf8d43665deac73a0522a1459d19f5b18b6f52030bb7fbc82d90b759b'
             '56e6876f41ee8909ee197f7ab5a2bb18ad5a7fe26ce490a48cdf062fa199ffc6')
 
 prepare() {
   mkdir -p build
 
+  cd qt-creator-opensource-src-$pkgver
   # fix hardcoded libexec path
-  sed -e 's|libexec\/qtcreator|lib\/qtcreator|g' -i qt-creator-opensource-src-${pkgver}/qtcreator.pri
+  sed -e 's|libexec\/qtcreator|lib\/qtcreator|g' -i qtcreator.pri
   # use system qbs
-  rm -r qt-creator-opensource-src-${pkgver}/src/shared/qbs
+  rm -r src/shared/qbs
 
-  cd qt-creator-opensource-src-${pkgver}
   git apply ../0001-Fix-Allow-qt-creator-to-build-on-arm-aarch32-and-aar.patch
 }
 
@@ -54,7 +54,7 @@ build() {
   cd build
 
   qmake LLVM_INSTALL_DIR=/usr QBS_INSTALL_DIR=/usr CONFIG+=journald QMAKE_CFLAGS_ISYSTEM=-I \
-    DEFINES+=QBS_ENABLE_PROJECT_FILE_UPDATES "$srcdir"/qt-creator-opensource-src-${pkgver}/qtcreator.pro
+    DEFINES+=QBS_ENABLE_PROJECT_FILE_UPDATES "$srcdir"/qt-creator-opensource-src-$pkgver/qtcreator.pro
   make
   make docs
 }

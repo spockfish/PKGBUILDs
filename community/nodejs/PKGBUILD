@@ -14,7 +14,7 @@
 buildarch=28
 
 pkgname=nodejs
-pkgver=10.4.1
+pkgver=10.8.0
 pkgrel=1
 pkgdesc='Evented I/O for V8 javascript'
 arch=('x86_64')
@@ -24,7 +24,7 @@ depends=('openssl' 'zlib' 'icu' 'libuv' 'http-parser' 'c-ares' 'libnghttp2') # '
 makedepends=('python2' 'procps-ng')
 optdepends=('npm: nodejs package manager')
 source=("nodejs-$pkgver.tar.gz::https://github.com/nodejs/node/archive/v$pkgver.tar.gz")
-sha512sums=('e0ad419a2d482f8e3c03a4a9ff89d6ba310b315003188619d1d2e36626dfa66a86172fc6c80bdc8fb1449c9baf093201b12480ad39847c0b7d40235eb82652ab')
+sha512sums=('67b0989f8971a95fd985998fb68246d2f7f1757a0833c06e0005a95c69b04069522a3693518f1b11abba377fe86eaca1a766b35a6b7b93bd03b57b8d47aed90c')
 
 prepare() {
   cd node-$pkgver
